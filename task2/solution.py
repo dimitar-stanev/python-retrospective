@@ -1,3 +1,5 @@
+from collections import deque
+
 def groupby(func, seq):
 	returndictionary = {}
 	for item in seq:
@@ -9,25 +11,28 @@ def groupby(func, seq):
 	return returndictionary
 
 def iterate(func):
-	returnlist = range(1,1000)
-	for i in returnlist:
-		yield func(func) # doesn't really seem to work
+    def compose(func1, func2):
+        return lambda arg: func1(func2(arg))
+
+    current_func = lambda arg: arg
+
+    while True:
+        yield current_func
+        current_func = compose(func, current_func)
 		
 def zip_with(func, *iterables):
-	for i in range(0, len(iterables[0])):
-		buffer_list = list()
-		for j in range (0, len(iterables)):
-			buffer_list.append(iterables[j][i])
-		yield func(*buffer_list)
+    return (func(*ntuple) for ntuple in zip(*iterables))
 
 def cache(func, cache_size):
-	def cached_func(x):
-		cached_list = list()
-		result = func(x)
-		if result not in cached_list:
-			cached_list.append(result)
-		else:
-			cached_list.pop()
-			cached_list.append(result)
-		print(result)
-	return cached_func
+    cache = deque(maxlen=cache_size)
+
+    def func_cached(*args):
+        for cached_args, cached_value in cache:
+            if cached_args == args:
+                return cached_value
+
+        result = func(*args)
+        cache.append((args, result))
+        return result
+
+    return func_cached

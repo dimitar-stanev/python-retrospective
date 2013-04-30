@@ -1,6 +1,6 @@
 import unittest
 
-from . import solution
+import solution
 
 
 class TicTacHomeworkTest(unittest.TestCase):
